@@ -10,12 +10,10 @@ public class scaleFromMicrophone : MonoBehaviour
     public float loudnessSensibility = 100;
     public float threshold = 0.1f;
 
-    void Start()
-    {
+    public ScreenShake screenShake;
+    public float shakeTriggerScale = 4.8f;
+    private bool hasShaken = false;
 
-    }
-
-    // Update is called once per frame
     void Update()
     {
         float loudness = detector.GetLoudnessFromMicrophone() * loudnessSensibility;
@@ -23,8 +21,21 @@ public class scaleFromMicrophone : MonoBehaviour
         if (loudness < threshold)
             loudness = 0;
 
-        //lerp value from minscale to maxscale 
-        transform.localScale = Vector3.Lerp(minScale, maxScale, loudness);
-    }
 
+        Vector3 newScale = Vector3.Lerp(minScale, maxScale, loudness);
+        transform.localScale = newScale;
+
+        // see if out of bounds
+        if (newScale.x >= shakeTriggerScale && !hasShaken)
+        {
+            screenShake.start = true;
+            hasShaken = true;
+        }
+
+        //when scale back set it back to false
+        if (newScale.x < shakeTriggerScale * 0.8f)
+        {
+            hasShaken = false;
+        }
+    }
 }
