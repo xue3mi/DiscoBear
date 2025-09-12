@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class ScreenShake : MonoBehaviour
@@ -7,6 +8,21 @@ public class ScreenShake : MonoBehaviour
     public AnimationCurve curve;
     public float duration = 1f;
     public float magnitude = 0.2f;
+
+    [Header("Background Flash")]
+    public SpriteRenderer background;
+    public Color flashColor = Color.red;
+    public float flashSpeed = 10f;
+
+    private Color originalColor;
+
+    void Start()
+    {
+        if (background != null)
+        {
+            originalColor = background.color;
+        }
+    }
 
     void Update()
     {
@@ -25,11 +41,25 @@ public class ScreenShake : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
+
+            //shake position
             float strength = curve.Evaluate(elapsed / duration);
             transform.position = startPosition + Random.insideUnitSphere * magnitude * strength;
+
+            // flash color
+            if (background != null)
+            {
+                float t = Mathf.PingPong(Time.time * flashSpeed, 1f);
+                background.color = Color.Lerp(originalColor, flashColor, t);
+            }
+
             yield return null;
         }
 
         transform.position = startPosition;
+
+        // return color
+        if (background != null)
+            background.color = originalColor;
     }
 }
