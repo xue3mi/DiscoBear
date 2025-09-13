@@ -16,12 +16,20 @@ public class ScreenShake : MonoBehaviour
 
     private Color originalColor;
 
+    [Header("Explosion Effect")]
+    public ParticleSystem explosionEffect;
+    public float explosionDuration = 3f;
+
     void Start()
     {
         if (background != null)
         {
             originalColor = background.color;
         }
+
+
+        if (explosionEffect != null)
+            explosionEffect.gameObject.SetActive(false);
     }
 
     void Update()
@@ -42,7 +50,7 @@ public class ScreenShake : MonoBehaviour
         {
             elapsed += Time.deltaTime;
 
-            //shake position
+            // shake position
             float strength = curve.Evaluate(elapsed / duration);
             transform.position = startPosition + Random.insideUnitSphere * magnitude * strength;
 
@@ -61,5 +69,20 @@ public class ScreenShake : MonoBehaviour
         // return color
         if (background != null)
             background.color = originalColor;
+
+        // shaked then explore
+        if (explosionEffect != null)
+            StartCoroutine(ExplosionRoutine());
+    }
+
+    IEnumerator ExplosionRoutine()
+    {
+        explosionEffect.gameObject.SetActive(true);
+        explosionEffect.Play();
+
+        yield return new WaitForSeconds(explosionDuration);
+
+        explosionEffect.Stop();
+        explosionEffect.gameObject.SetActive(false);
     }
 }
